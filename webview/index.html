@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skillshub Marketplace</title>
+  <style>
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      padding: 20px; 
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    h1 { color: #569cd6; }
+    .card { 
+      border: 1px solid #3c3c3c; 
+      padding: 15px; 
+      margin: 10px 0; 
+      border-radius: 8px; 
+      background: #252526;
+    }
+    .card h3 { margin: 0 0 10px; color: #9cdcfe; }
+    .card p { color: #808080; margin: 8px 0; }
+    .tag { 
+      background: #264f78; 
+      padding: 3px 8px; 
+      border-radius: 4px; 
+      font-size: 12px; 
+      color: #ce9178;
+      margin-right: 5px;
+    }
+    .meta { font-size: 12px; color: #6a9955; }
+    button { 
+      background: #0e639c; 
+      color: white; 
+      border: none; 
+      padding: 8px 16px; 
+      border-radius: 4px; 
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { background: #1177bb; }
+    .search { margin-bottom: 20px; }
+    .search input {
+      padding: 8px;
+      width: 300px;
+      background: #3c3c3c;
+      border: 1px solid #3c3c3c;
+      color: #d4d4d4;
+      border-radius: 4px;
+    }
+    .loading { color: #569cd6; }
+    .error { color: #f14c4c; }
+  </style>
+</head>
+<body>
+  <h1>Skillshub Marketplace</h1>
+  <div class="search">
+    <input type="text" id="searchInput" placeholder="Search skills...">
+  </div>
+  <div id="status" class="loading">Loading...</div>
+  <div id="skills"></div>
+  <script>
+    const vscode = acquireVsCodeApi();
+    
+    window.addEventListener('message', event => {
+      const data = event.data;
+      if (data.type === 'skills') {
+        document.getElementById('status').textContent = '';
+        renderSkills(data.items);
+      } else if (data.type === 'error') {
+        document.getElementById('status').className = 'error';
+        document.getElementById('status').textContent = 'Error: ' + data.message;
+      } else if (data.type === 'installed') {
+        alert('Skill installed successfully!');
+      }
+    });
+    
+    function renderSkills(skills) {
+      const container = document.getElementById('skills');
+      if (skills.length === 0) {
+        container.innerHTML = '<p>No skills found</p>';
+        return;
+      }
+      container.innerHTML = skills.map(s => `
+        <div class="card">
+          <h3>${s.name}</h3>
+          <p>${s.description || 'No description'}</p>
+          <div class="tags">${(s.tags || []).map(t => `<span class="tag">${t}</span>`).join('')}</div>
+          <div class="meta">
+            v${s.version} | ${s.downloads} downloads | Rating: ${s.rating || 'N/A'}
+          </div>
+          <button onclick="installSkill('${s.id}', '${s.name}')">Install</button>
+        </div>
+      `).join('');
+    }
+    
+    function installSkill(id, name) {
+      vscode.postMessage({ action: 'install', id, name });
+    }
+    
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+      if (e.key === 'Enter') {
+        vscode.postMessage({ action: 'search', keyword: e.target.value });
+      }
+    });
+    
+    vscode.postMessage({ action: 'ready' });
+  </script>
+</body>
+</html>

@@ -3,67 +3,22 @@ import { SkillManager } from '../services/SkillManager';
 import { MarketplaceService } from '../services/MarketplaceService';
 import { VersionManager } from '../services/VersionManager';
 import { CacheManager } from '../services/CacheManager';
+import { MarketplaceView } from '../ui/MarketplaceView';
 
-export function registerCommands(skillManager: SkillManager, marketplaceService: MarketplaceService) {
+let marketplaceView: MarketplaceView;
+
+export function registerCommands(
+  skillManager: SkillManager,
+  marketplaceService: MarketplaceService,
+  cacheManager: CacheManager
+) {
   const commands: vscode.Disposable[] = [];
-  const cacheManager = new CacheManager();
 
+  marketplaceView = new MarketplaceView(marketplaceService, cacheManager);
+  
   commands.push(
-    vscode.commands.registerCommand('skillshub.createSkill', async () => {
-      const name = await vscode.window.showInputBox({ 
-        prompt: 'Enter skill name',
-        validateInput: (v) => v ? null : 'Name required'
-      });
-      if (name) {
-        await skillManager.create(name);
-        vscode.window.showInformationMessage(`Created: ${name}`);
-      }
-    })
-  );
-
-  commands.push(
-    vscode.commands.registerCommand('skillshub.packageSkill', async () => {
-      const skills = await skillManager.list();
-      if (skills.length === 0) {
-        vscode.window.showWarningMessage('No skills found');
-        return;
-      }
-      const selected = await vscode.window.showQuickPick(
-        skills.map(s => s.name)
-      );
-      if (selected) {
-        const skill = skills.find(s => s.name === selected)!;
-        const zipPath = await skillManager.package(skill.path);
-        vscode.window.showInformationMessage(`Package: ${zipPath}`);
-      }
-    })
-  );
-
-  commands.push(
-    vscode.commands.registerCommand('skillshub.testSkill', async () => {
-      const skills = await skillManager.list();
-      if (skills.length === 0) {
-        vscode.window.showWarningMessage('No skills found');
-        return;
-      }
-      const selected = await vscode.window.showQuickPick(
-        skills.map(s => s.name)
-      );
-      if (selected) {
-        const skill = skills.find(s => s.name === selected)!;
-        const result = await skillManager.test(skill.path);
-        if (result.success) {
-          vscode.window.showInformationMessage('Test passed');
-        } else {
-          vscode.window.showErrorMessage(`Test failed: ${result.output}`);
-        }
-      }
-    })
-  );
-
-  commands.push(
-    vscode.commands.registerCommand('skillshub.openMarketplace', async () => {
-      vscode.window.showInformationMessage('Marketplace coming soon');
+    vscode.commands.registerCommand('skillshub.openMarketplace', () => {
+      marketplaceView.show();
     })
   );
 

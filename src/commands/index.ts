@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
 import { SkillManager } from '../services/SkillManager';
+import { MarketplaceService } from '../services/MarketplaceService';
 
-export function registerCommands(skillManager: SkillManager) {
+export function registerCommands(skillManager: SkillManager, marketplaceService: MarketplaceService) {
   const commands: vscode.Disposable[] = [];
 
   commands.push(
@@ -53,6 +54,25 @@ export function registerCommands(skillManager: SkillManager) {
         } else {
           vscode.window.showErrorMessage(`Test failed: ${result.output}`);
         }
+      }
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.openMarketplace', async () => {
+      vscode.window.showInformationMessage('Marketplace coming soon');
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.setToken', async () => {
+      const token = await vscode.window.showInputBox({ 
+        prompt: 'Enter marketplace token',
+        password: true 
+      });
+      if (token) {
+        marketplaceService.setToken(token);
+        vscode.window.showInformationMessage('Token set successfully');
       }
     })
   );

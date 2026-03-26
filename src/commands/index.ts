@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { SkillManager } from '../services/SkillManager';
 import { MarketplaceService } from '../services/MarketplaceService';
+import { VersionManager } from '../services/VersionManager';
 
 export function registerCommands(skillManager: SkillManager, marketplaceService: MarketplaceService) {
   const commands: vscode.Disposable[] = [];
@@ -73,6 +74,50 @@ export function registerCommands(skillManager: SkillManager, marketplaceService:
       if (token) {
         marketplaceService.setToken(token);
         vscode.window.showInformationMessage('Token set successfully');
+      }
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.showVersions', async () => {
+      const skills = await skillManager.list();
+      if (skills.length === 0) {
+        vscode.window.showWarningMessage('No skills found');
+        return;
+      }
+      const selected = await vscode.window.showQuickPick(skills.map(s => s.name));
+      if (selected) {
+        const skill = skills.find(s => s.name === selected)!;
+        const versionManager = new VersionManager();
+        const versions = await versionManager.getVersions(skill.path);
+        const versionList = versions.map(v => `${v.version} - ${v.createdAt}`).join('\n');
+        vscode.window.showInformationMessage(`Versions:\n${versionList || 'No history'}`);
+      }
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.rollbackSkill', async () => {
+      const skills = await skillManager.list();
+      if (skills.length === 0) {
+        vscode.window.showWarningMessage('No skills found');
+        return;
+      }
+      const selected = await vscode.window.showQuickPick(skills.map(s => s.name));
+      if (selected) {
+        const skill = skills.find(s => s.name === selected)!;
+        const versionManager = new VersionManager();
+        const versions = await versionManager.getVersions(skill.path);
+        if (versions.length === 0) {
+          vscode.window.showWarningMessage('No versions to rollback to');
+          return;
+        }
+        const versionSelected = await vscode.window.showQuickPick(versions.map(v => v.version));
+        if (versionSelected) {
+          const version = versions.find(v => v.version === versionSelected)!;
+          await versionManager.rollback(skill.path, version.id);
+          vscode.window.showInformationMessage(`Rolled back to ${versionSelected}`);
+        }
       }
     })
   );

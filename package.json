@@ -1,0 +1,23 @@
+{
+  "name": "skillshub",
+  "displayName": "Skillshub",
+  "description": "Skill management and marketplace for OpenCode",
+  "version": "0.0.1",
+  "publisher": "skillshub",
+  "engines": { "vscode": "^1.80.0" },
+  "categories": ["Other"],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}

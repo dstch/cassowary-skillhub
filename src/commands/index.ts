@@ -2,9 +2,11 @@ import * as vscode from 'vscode';
 import { SkillManager } from '../services/SkillManager';
 import { MarketplaceService } from '../services/MarketplaceService';
 import { VersionManager } from '../services/VersionManager';
+import { CacheManager } from '../services/CacheManager';
 
 export function registerCommands(skillManager: SkillManager, marketplaceService: MarketplaceService) {
   const commands: vscode.Disposable[] = [];
+  const cacheManager = new CacheManager();
 
   commands.push(
     vscode.commands.registerCommand('skillshub.createSkill', async () => {
@@ -119,6 +121,22 @@ export function registerCommands(skillManager: SkillManager, marketplaceService:
           vscode.window.showInformationMessage(`Rolled back to ${versionSelected}`);
         }
       }
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.clearCache', async () => {
+      await cacheManager.clearCache();
+      vscode.window.showInformationMessage('Cache cleared');
+    })
+  );
+
+  commands.push(
+    vscode.commands.registerCommand('skillshub.showSyncStatus', async () => {
+      const status = await cacheManager.getSyncStatus();
+      const statusText = status.online ? 'Online' : 'Offline';
+      const lastSync = status.lastSync ? `Last sync: ${status.lastSync}` : 'Never synced';
+      vscode.window.showInformationMessage(`${statusText} - ${lastSync}`);
     })
   );
 

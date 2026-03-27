@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skill Creator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <span class="title">🤖 Skill Creator</span>
+      <button class="btn-close" id="closeBtn">×</button>
+    </header>
+
+    <div class="conversation" id="conversation">
+      <div class="message agent">
+        <div class="message-content" id="welcomeMessage">
+          Hello! I'm here to help you create a skill. What would you like to build?
+        </div>
+      </div>
+    </div>
+
+    <div class="preview-panel" id="previewPanel" style="display: none;">
+      <div class="preview-header">
+        <span>📁 Preview</span>
+        <span class="preview-name" id="previewName"></span>
+      </div>
+      <div class="preview-files" id="previewFiles"></div>
+      <div class="preview-actions">
+        <button class="btn btn-secondary" id="editBtn">Edit</button>
+        <button class="btn btn-secondary" id="regenerateBtn">Regenerate</button>
+        <button class="btn btn-primary" id="confirmBtn">Confirm Create</button>
+      </div>
+    </div>
+
+    <div class="fallback-panel" id="fallbackPanel" style="display: none;">
+      <div class="fallback-warning">⚠️ Agent is unavailable. Choose a template:</div>
+      <div class="template-list" id="templateList"></div>
+    </div>
+
+    <div class="context-panel" id="contextPanel" style="display: none;">
+      <label>
+        <input type="checkbox" id="includeContext">
+        Include current file/project context
+      </label>
+    </div>
+
+    <footer class="input-area">
+      <input type="text" id="messageInput" placeholder="Describe what you want to build..." />
+      <button class="btn btn-primary" id="sendBtn">Send</button>
+    </footer>
+  </div>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+    const conversation = document.getElementById('conversation');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const previewPanel = document.getElementById('previewPanel');
+    const fallbackPanel = document.getElementById('fallbackPanel');
+    const contextPanel = document.getElementById('contextPanel');
+
+    let currentStatus = 'idle';
+
+    function addMessage(role, content) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message ' + role;
+      msgDiv.innerHTML = '<div class="message-content">' + escapeHtml(content) + '</div>';
+      conversation.appendChild(msgDiv);
+      conversation.scrollTop = conversation.scrollHeight;
+    }
+
+    function setStatus(status) {
+      currentStatus = status;
+      if (status === 'thinking') {
+        sendBtn.disabled = true;
+        sendBtn.textContent = '...';
+      } else {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send';
+      }
+    }
+
+    function showPreview(preview) {
+      previewPanel.style.display = 'block';
+      document.getElementById('previewName').textContent = preview.name;
+      const filesDiv = document.getElementById('previewFiles');
+      filesDiv.innerHTML = preview.files.map(function(f) { 
+        return '<div class="file-item"><span class="file-path">' + escapeHtml(f.path) + '</span></div>';
+      }).join('');
+    }
+
+    function showFallback(templates) {
+      fallbackPanel.style.display = 'block';
+      const list = document.getElementById('templateList');
+      list.innerHTML = templates.map(function(t) { 
+        return '<button class="template-btn" data-id="' + t.id + '">' + t.name + '<br><small>' + t.description + '</small></button>';
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    window.addEventListener('message', function(event) {
+      const data = event.data;
+      if (data.type === 'message') {
+        addMessage(data.role, data.content);
+      } else if (data.type === 'status') {
+        setStatus(data.status);
+      } else if (data.type === 'preview') {
+        showPreview(data.preview);
+      } else if (data.type === 'fallback') {
+        showFallback(data.templates);
+      }
+    });
+
+    sendBtn.addEventListener('click', function() {
+      const msg = messageInput.value.trim();
+      if (!msg) return;
+      addMessage('user', msg);
+      vscode.postMessage({ action: 'sendMessage', content: msg });
+      messageInput.value = '';
+    });
+
+    messageInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendBtn.click();
+      }
+    });
+
+    document.getElementById('closeBtn').addEventListener('click', function() {
+      vscode.postMessage({ action: 'close' });
+    });
+
+    document.getElementById('confirmBtn').addEventListener('click', function() {
+      vscode.postMessage({ action: 'confirm' });
+    });
+
+    document.getElementById('regenerateBtn').addEventListener('click', function() {
+      vscode.postMessage({ action: 'regenerate' });
+    });
+
+    var templateList = document.getElementById('templateList');
+    if (templateList) {
+      templateList.addEventListener('click', function(e) {
+        var btn = e.target.closest('.template-btn');
+        if (btn) {
+          vscode.postMessage({ action: 'useTemplate', templateId: btn.dataset.id });
+        }
+      });
+    }
+  </script>
+</body>
+</html>

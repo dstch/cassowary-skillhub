@@ -6,25 +6,33 @@ import { Template, SkillPreview, SkillFile } from '../agent/types';
 import { Logger } from './logger';
 
 export class TemplateEngine {
-  private templatesPath: string;
+  private templatesPath: string | undefined;
 
-  constructor() {
-    const config = vscode.workspace.getConfiguration('skillshub');
-    this.templatesPath = config.get<string>('templatesPath') || 
-      path.join(os.homedir(), '.config', 'skillshub', 'templates');
+  private getTemplatesPath(): string {
+    if (!this.templatesPath) {
+      try {
+        const config = vscode.workspace.getConfiguration('skillshub');
+        this.templatesPath = config.get<string>('templatesPath') || 
+          path.join(os.homedir(), '.config', 'skillshub', 'templates');
+      } catch {
+        this.templatesPath = path.join(os.homedir(), '.config', 'skillshub', 'templates');
+      }
+    }
+    return this.templatesPath;
   }
 
   listTemplates(): Template[] {
-    if (!fs.existsSync(this.templatesPath)) {
+    const templatesPath = this.getTemplatesPath();
+    if (!fs.existsSync(templatesPath)) {
       return this.getBuiltInTemplates();
     }
     
-    const dirs = fs.readdirSync(this.templatesPath).filter(d => 
-      fs.statSync(path.join(this.templatesPath, d)).isDirectory()
+    const dirs = fs.readdirSync(templatesPath).filter(d => 
+      fs.statSync(path.join(templatesPath, d)).isDirectory()
     );
     
     return dirs.map(dir => {
-      const metaPath = path.join(this.templatesPath, dir, 'skill.json');
+      const metaPath = path.join(templatesPath, dir, 'skill.json');
       if (fs.existsSync(metaPath)) {
         const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
         return { id: dir, name: meta.name, description: meta.description, files: [] };
@@ -34,7 +42,7 @@ export class TemplateEngine {
   }
 
   generateFromTemplate(templateId: string, overrides?: Partial<SkillPreview>): SkillPreview {
-    const templateDir = path.join(this.templatesPath, templateId);
+    const templateDir = path.join(this.getTemplatesPath(), templateId);
     if (!fs.existsSync(templateDir)) {
       throw new Error(`Template not found: ${templateId}`);
     }

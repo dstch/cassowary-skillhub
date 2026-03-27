@@ -64,6 +64,8 @@ export class SkillCreationPanel {
         await this.handleRegenerate();
       } else if (msg.action === 'useTemplate') {
         await this.handleUseTemplate(msg.templateId);
+      } else if (msg.action === 'editFeedback') {
+        await this.handleEditFeedback(msg.feedback);
       } else if (msg.action === 'close') {
         this.panel?.dispose();
       }
@@ -125,6 +127,11 @@ export class SkillCreationPanel {
     const preview = await this.agent.fallbackToTemplate(templateId);
     this.postMessage({ type: 'preview', preview });
     this.postMessage({ type: 'fallbackHidden' });
+  }
+
+  private async handleEditFeedback(feedback: string): Promise<void> {
+    const modifiedPrompt = `Please modify the previous skill with the following feedback: ${feedback}`;
+    await this.handleUserMessage(modifiedPrompt);
   }
 
   private postMessage(data: unknown): void {

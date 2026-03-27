@@ -1,4 +1,4 @@
-import { SkillContext, SkillResult } from '../types';
+import { SkillContext, SkillResult } from './types';
 
 export async function execute(context: SkillContext): Promise<SkillResult> {
   const { command, params } = context;

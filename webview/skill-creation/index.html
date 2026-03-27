@@ -145,6 +145,14 @@
       vscode.postMessage({ action: 'regenerate' });
     });
 
+    document.getElementById('editBtn').addEventListener('click', function() {
+      const feedback = prompt('What would you like to change?');
+      if (feedback) {
+        addMessage('user', 'Please modify: ' + feedback);
+        vscode.postMessage({ action: 'editFeedback', feedback: feedback });
+      }
+    });
+
     var templateList = document.getElementById('templateList');
     if (templateList) {
       templateList.addEventListener('click', function(e) {

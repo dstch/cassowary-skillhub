@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <!-- Background -->
+  <circle cx="64" cy="64" r="60" fill="#1a1a2e"/>
+  
+  <!-- Cassowary silhouette - stylized -->
+  <g transform="translate(64, 64)">
+    <!-- Body -->
+    <ellipse cx="0" cy="12" rx="26" ry="30" fill="#2d2d44"/>
+    
+    <!-- Helmet/Casque - distinctive feature -->
+    <path d="M-14 -20 Q-12 -38 0 -42 Q12 -38 14 -20 Q10 -14 0 -12 Q-10 -14 -14 -20" fill="#4a90d9"/>
+    <path d="M-10 -22 Q-8 -34 0 -37 Q8 -34 10 -22 Q6 -18 0 -17 Q-6 -18 -10 -22" fill="#6bb3ff"/>
+    
+    <!-- Head area -->
+    <circle cx="8" cy="-8" r="12" fill="#3d3d5c"/>
+    
+    <!-- Eye -->
+    <circle cx="12" cy="-10" r="3" fill="#fff"/>
+    <circle cx="13" cy="-10" r="1.5" fill="#1a1a2e"/>
+    
+    <!-- Neck with wattles -->
+    <path d="M-4 -20 Q8 -26 12 -18 Q8 -8 4 -4 Q0 -10 -4 -20" fill="#3d3d5c"/>
+    
+    <!-- Red wattle -->
+    <ellipse cx="16" cy="-14" rx="5" ry="7" fill="#e63946"/>
+    <ellipse cx="16" cy="-15" rx="3" ry="4" fill="#ff6b6b"/>
+    
+    <!-- Blue wattle -->
+    <ellipse cx="2" cy="-18" rx="4" ry="5" fill="#4895ef"/>
+    <ellipse cx="2" cy="-19" rx="2.5" ry="3" fill="#6bb3ff"/>
+    
+    <!-- Beak hint -->
+    <path d="M18 -8 L28 -10 L18 -4 Z" fill="#f4a261"/>
+  </g>
+</svg>

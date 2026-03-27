@@ -20,14 +20,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
   if (lastVersion !== currentVersion) {
     if (lastVersion) {
-      vscode.window.showInformationMessage(`Skillshub updated: ${lastVersion} → ${currentVersion}`);
+      vscode.window.showInformationMessage(`Cassowary updated: ${lastVersion} → ${currentVersion}`);
     } else {
-      vscode.window.showInformationMessage(`Skillshub ${currentVersion} installed!`);
+      vscode.window.showInformationMessage(`Cassowary ${currentVersion} installed!`);
     }
-    context.globalState.update('skillshub.version', currentVersion);
+    context.globalState.update('cassowary-skillhub.version', currentVersion);
   }
 
-  Logger.info(`Skillshub ${currentVersion} activated`);
+  Logger.info(`Cassowary ${currentVersion} activated`);
   skillManager = new SkillManager();
   marketplaceService = new MarketplaceService();
   cacheManager = new CacheManager();
@@ -38,14 +38,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const skills = await skillManager.list();
   const provider = new SkillExplorerProvider(skills);
-  vscode.window.registerTreeDataProvider('skillExplorer', provider);
+  vscode.window.registerTreeDataProvider('cassowary-skillhub.explorer', provider);
 
-  vscode.commands.registerCommand('skillshub.refreshExplorer', async () => {
+  vscode.commands.registerCommand('cassowary-skillhub.refreshExplorer', async () => {
     const updatedSkills = await skillManager.list();
     provider.refresh(updatedSkills);
   });
 
-  vscode.commands.registerCommand('skillshub.openSkill', async (skill: Skill) => {
+  vscode.commands.registerCommand('cassowary-skillhub.openSkill', async (skill: Skill) => {
     vscode.window.showTextDocument(vscode.Uri.file(skill.path));
   });
 }

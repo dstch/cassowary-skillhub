@@ -1,12 +1,12 @@
 {
-  "name": "skillshub",
-  "displayName": "Skillshub",
+  "name": "cassowary-skillhub",
+  "displayName": "Cassowary SkillHub",
   "description": "Skill management and marketplace for OpenCode",
-  "version": "0.0.22",
-  "publisher": "skillshub",
+  "version": "0.0.25",
+  "publisher": "skillhub",
   "repository": {
     "type": "git",
-    "url": "https://github.com/skillshub/skillshub"
+    "url": "https://github.com/skillshub/cassowary-skillhub"
   },
   "engines": {
     "vscode": "^1.80.0"
@@ -22,7 +22,7 @@
     "watch": "tsc -watch -p ./",
     "version": "node scripts/updateVersion.js",
     "package": "npm run version && vsce package",
-    "install": "vsce package && code --install-extension skillshub-*.vsix"
+    "install": "vsce package && code --install-extension cassowary-skillhub-*.vsix"
   },
   "dependencies": {
     "axios": "^1.6.0"
@@ -40,14 +40,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "skillshub",
-          "title": "Skillshub",
+          "id": "cassowary-skillhub",
+          "title": "Cassowary",
           "icon": "$(hubot)"
         }
       ]
     },
     "views": {
-      "skillshub": [
+      "cassowary-skillhub": [
         {
           "id": "skillExplorer",
           "name": "Skills"
@@ -56,11 +56,11 @@
     },
     "commands": [
       {
-        "command": "skillshub.newSkill",
+        "command": "cassowary-skillhub.newSkill",
         "title": "New Skill"
       },
       {
-        "command": "skillshub.refreshExplorer",
+        "command": "cassowary-skillhub.refreshExplorer",
         "title": "Refresh Skills"
       }
     ]

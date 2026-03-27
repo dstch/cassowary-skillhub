@@ -22,7 +22,7 @@ export function registerCommands(
   marketplaceView = new MarketplaceView(marketplaceService, cacheManager);
   
   commands.push(
-    vscode.commands.registerCommand('skillshub.newSkill', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.newSkill', async () => {
       const editor = vscode.window.activeTextEditor;
       const context = editor ? {
         currentFile: editor.document.uri.fsPath,
@@ -34,13 +34,13 @@ export function registerCommands(
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.openMarketplace', () => {
+    vscode.commands.registerCommand('cassowary-skillhub.openMarketplace', () => {
       marketplaceView.show();
     })
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.setToken', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.setToken', async () => {
       const token = await vscode.window.showInputBox({ 
         prompt: 'Enter marketplace token',
         password: true 
@@ -53,7 +53,7 @@ export function registerCommands(
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.showVersions', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.showVersions', async () => {
       const skills = await skillManager.list();
       if (skills.length === 0) {
         vscode.window.showWarningMessage('No skills found');
@@ -71,7 +71,7 @@ export function registerCommands(
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.rollbackSkill', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.rollbackSkill', async () => {
       const skills = await skillManager.list();
       if (skills.length === 0) {
         vscode.window.showWarningMessage('No skills found');
@@ -97,14 +97,14 @@ export function registerCommands(
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.clearCache', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.clearCache', async () => {
       await cacheManager.clearCache();
       vscode.window.showInformationMessage('Cache cleared');
     })
   );
 
   commands.push(
-    vscode.commands.registerCommand('skillshub.showSyncStatus', async () => {
+    vscode.commands.registerCommand('cassowary-skillhub.showSyncStatus', async () => {
       const status = await cacheManager.getSyncStatus();
       const statusText = status.online ? 'Online' : 'Offline';
       const lastSync = status.lastSync ? `Last sync: ${status.lastSync}` : 'Never synced';

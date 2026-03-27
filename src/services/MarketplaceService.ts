@@ -8,7 +8,7 @@ export class MarketplaceService {
   private baseUrl: string;
   private token?: string;
 
-  constructor(baseUrl: string = 'https://api.skillshub.example.com') {
+  constructor(baseUrl: string = 'https://api.cassowary-skillhub.example.com') {
     this.baseUrl = baseUrl;
     this.client = axios.create({
       baseURL: baseUrl,

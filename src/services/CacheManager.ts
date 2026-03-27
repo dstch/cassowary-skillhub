@@ -13,7 +13,7 @@ export class CacheManager {
   private cachePath: string;
 
   constructor() {
-    this.cachePath = path.join(os.homedir(), '.config', 'skillshub', 'cache');
+    this.cachePath = path.join(os.homedir(), '.config', 'cassowary-skillhub', 'cache');
     if (!fs.existsSync(this.cachePath)) {
       fs.mkdirSync(this.cachePath, { recursive: true });
     }

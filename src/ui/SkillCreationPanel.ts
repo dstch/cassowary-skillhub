@@ -40,7 +40,7 @@ export class SkillCreationPanel {
 
     this.panelDisposed = false;
     this.panel = vscode.window.createWebviewPanel(
-      'skillshub.skillCreation',
+      'cassowary-skillhub.skillCreation',
       'Skill Creator',
       vscode.ViewColumn.One,
       { enableScripts: true, localResourceRoots: [this.getWebviewUri()] }

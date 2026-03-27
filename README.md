@@ -1,4 +1,4 @@
-# Skillshub
+# Cassowary-SkillHub
 
 VSCode 插件，提供可视化的 skill 管理界面。
 
@@ -14,7 +14,7 @@ VSCode 插件，提供可视化的 skill 管理界面。
 ### 安装
 
 ```bash
-code --install-extension skillshub-0.0.1.vsix
+code --install-extension cassowary-skillhub-0.0.22.vsix
 ```
 
 ### 开发环境配置
@@ -30,7 +30,7 @@ code --install-extension skillshub-0.0.1.vsix
    ```
 4. 打包：
    ```bash
-   npx vsce package
+   npm run package
    ```
 
 ### 调试
@@ -41,14 +41,14 @@ code --install-extension skillshub-0.0.1.vsix
 
 | 命令 | 功能 |
 |------|------|
-| skillshub.createSkill | 创建新 skill |
-| skillshub.packageSkill | 打包 skill |
-| skillshub.testSkill | 测试 skill |
-| skillshub.openMarketplace | 打开市场 |
-| skillshub.showVersions | 查看版本 |
-| skillshub.rollbackSkill | 回滚版本 |
+| cassowary-skillhub.newSkill | 创建新 skill |
+| cassowary-skillhub.openMarketplace | 打开市场 |
+| cassowary-skillhub.showVersions | 查看版本 |
+| cassowary-skillhub.rollbackSkill | 回滚版本 |
+| cassowary-skillhub.clearCache | 清除缓存 |
+| cassowary-skillhub.showSyncStatus | 查看同步状态 |
 
 ## 配置
 
-- 市场 API：`https://api.skillshub.example.com`（需配置实际地址）
+- 市场 API：`https://api.cassowary-skillhub.example.com`（需配置实际地址）
 - 本地路径：`~/.config/opencode/skills/`

@@ -19,8 +19,8 @@ export class MarketplaceView {
     }
 
     this.panel = vscode.window.createWebviewPanel(
-      'skillshub.marketplace',
-      'Skillshub Marketplace',
+      'cassowary-skillhub.marketplace',
+      'Cassowary Marketplace',
       vscode.ViewColumn.One,
       { enableScripts: true }
     );

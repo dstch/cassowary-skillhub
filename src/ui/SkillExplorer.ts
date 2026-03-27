@@ -28,7 +28,7 @@ export class SkillTreeItem extends vscode.TreeItem {
     this.contextValue = 'skill';
     this.iconPath = new vscode.ThemeIcon('symbol-property');
     this.command = {
-      command: 'skillshub.openSkill',
+      command: 'cassowary-skillhub.openSkill',
       title: 'Open',
       arguments: [this.skill]
     };

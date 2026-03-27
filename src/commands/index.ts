@@ -1,21 +1,38 @@
 import * as vscode from 'vscode';
+import * as path from 'path';
+import * as fs from 'fs';
 import { SkillManager } from '../services/SkillManager';
 import { MarketplaceService } from '../services/MarketplaceService';
 import { VersionManager } from '../services/VersionManager';
 import { CacheManager } from '../services/CacheManager';
 import { MarketplaceView } from '../ui/MarketplaceView';
+import { SkillCreationPanel } from '../ui/SkillCreationPanel';
+import { Logger } from '../services/logger';
 
 let marketplaceView: MarketplaceView;
 
 export function registerCommands(
   skillManager: SkillManager,
   marketplaceService: MarketplaceService,
-  cacheManager: CacheManager
+  cacheManager: CacheManager,
+  skillCreationPanel: SkillCreationPanel
 ) {
   const commands: vscode.Disposable[] = [];
 
   marketplaceView = new MarketplaceView(marketplaceService, cacheManager);
   
+  commands.push(
+    vscode.commands.registerCommand('skillshub.createSkill', async () => {
+      const editor = vscode.window.activeTextEditor;
+      const context = editor ? {
+        currentFile: editor.document.uri.fsPath,
+        projectPath: vscode.workspace.rootPath,
+        includeContext: false
+      } : undefined;
+      skillCreationPanel.show(context);
+    })
+  );
+
   commands.push(
     vscode.commands.registerCommand('skillshub.openMarketplace', () => {
       marketplaceView.show();

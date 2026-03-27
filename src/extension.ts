@@ -6,18 +6,21 @@ import { registerCommands } from './commands';
 import { SkillExplorerProvider, SkillTreeItem } from './ui/SkillExplorer';
 import { Skill } from './services/types';
 import { CacheManager } from './services/CacheManager';
+import { SkillCreationPanel } from './ui/SkillCreationPanel';
 
 let skillManager: SkillManager;
 let marketplaceService: MarketplaceService;
 let cacheManager: CacheManager;
+let skillCreationPanel: SkillCreationPanel;
 
 export async function activate(context: vscode.ExtensionContext) {
   Logger.info('Skillshub activated');
   skillManager = new SkillManager();
   marketplaceService = new MarketplaceService();
   cacheManager = new CacheManager();
+  skillCreationPanel = new SkillCreationPanel(context);
   
-  const commands = registerCommands(skillManager, marketplaceService, cacheManager);
+  const commands = registerCommands(skillManager, marketplaceService, cacheManager, skillCreationPanel);
   commands.forEach(cmd => context.subscriptions.push(cmd));
 
   const skills = await skillManager.list();

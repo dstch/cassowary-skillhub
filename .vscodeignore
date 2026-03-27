@@ -2,7 +2,6 @@ node_modules/
 src/
 docs/
 templates/
-webview/
 tsconfig.json
 .gitignore
 *.vsix

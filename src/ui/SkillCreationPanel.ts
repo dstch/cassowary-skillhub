@@ -11,10 +11,11 @@ export class SkillCreationPanel {
   private agent: SkillCreationAgent;
   private skillManager: SkillManager;
   private templateEngine: TemplateEngine;
-  private context: vscode.ExtensionContext;
+  private extensionUri: vscode.Uri;
+  private panelDisposed: boolean = false;
 
   constructor(context: vscode.ExtensionContext) {
-    this.context = context;
+    this.extensionUri = context.extensionUri;
     this.agent = new SkillCreationAgent();
     this.skillManager = new SkillManager();
     this.templateEngine = new TemplateEngine();
@@ -32,11 +33,12 @@ export class SkillCreationPanel {
   }
 
   show(context?: { currentFile?: string; projectPath?: string }): void {
-    if (this.panel) {
+    if (this.panel && !this.panelDisposed) {
       this.panel.reveal();
       return;
     }
 
+    this.panelDisposed = false;
     this.panel = vscode.window.createWebviewPanel(
       'skillshub.skillCreation',
       'Skill Creator',
@@ -44,10 +46,10 @@ export class SkillCreationPanel {
       { enableScripts: true, localResourceRoots: [this.getWebviewUri()] }
     );
 
-    const htmlPath = path.join(__dirname, '../../webview/skill-creation/index.html');
+    const htmlPath = path.join(this.extensionUri.fsPath, 'webview', 'skill-creation', 'index.html');
     let html = fs.readFileSync(htmlPath, 'utf-8');
     html = html.replace(/styles\.css/g, this.panel.webview.asWebviewUri(
-      vscode.Uri.file(path.join(__dirname, '../../webview/skill-creation/styles.css'))
+      vscode.Uri.file(path.join(this.extensionUri.fsPath, 'webview', 'skill-creation', 'styles.css'))
     ).toString());
 
     this.panel.webview.html = html;
@@ -72,6 +74,7 @@ export class SkillCreationPanel {
     });
 
     this.panel.onDidDispose(() => {
+      this.panelDisposed = true;
       this.panel = undefined;
       this.agent.cancel();
     });
@@ -139,6 +142,6 @@ export class SkillCreationPanel {
   }
 
   private getWebviewUri(): vscode.Uri {
-    return vscode.Uri.file(path.join(__dirname, '../../webview'));
+    return vscode.Uri.file(path.join(this.extensionUri.fsPath, 'webview'));
   }
 }

@@ -14,7 +14,20 @@ let cacheManager: CacheManager;
 let skillCreationPanel: SkillCreationPanel;
 
 export async function activate(context: vscode.ExtensionContext) {
-  Logger.info('Skillshub activated');
+  const packageJson = require('../package.json');
+  const currentVersion = packageJson.version;
+  const lastVersion = context.globalState.get<string>('skillshub.version');
+
+  if (lastVersion !== currentVersion) {
+    if (lastVersion) {
+      vscode.window.showInformationMessage(`Skillshub updated: ${lastVersion} → ${currentVersion}`);
+    } else {
+      vscode.window.showInformationMessage(`Skillshub ${currentVersion} installed!`);
+    }
+    context.globalState.update('skillshub.version', currentVersion);
+  }
+
+  Logger.info(`Skillshub ${currentVersion} activated`);
   skillManager = new SkillManager();
   marketplaceService = new MarketplaceService();
   cacheManager = new CacheManager();

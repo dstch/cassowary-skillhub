@@ -2,23 +2,39 @@
   "name": "skillshub",
   "displayName": "Skillshub",
   "description": "Skill management and marketplace for OpenCode",
-  "version": "0.0.1",
+  "version": "0.0.22",
   "publisher": "skillshub",
-  "engines": { "vscode": "^1.80.0" },
-  "categories": ["Other"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skillshub/skillshub"
+  },
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
   "main": "./out/extension.js",
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./"
+    "compile": "tsc -p ./ && npm run bundle",
+    "bundle": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node",
+    "watch": "tsc -watch -p ./",
+    "version": "node scripts/updateVersion.js",
+    "package": "npm run version && vsce package",
+    "install": "vsce package && code --install-extension skillshub-*.vsix"
   },
   "dependencies": {
     "axios": "^1.6.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^20.0.0",
-    "typescript": "^5.3.0"
+    "@types/vscode": "^1.80.0",
+    "@vscode/vsce": "^3.7.1",
+    "esbuild": "^0.27.4",
+    "typescript": "^5.3.0",
+    "vsce": "^2.15.0"
   },
   "contributes": {
     "viewsContainers": {
@@ -39,6 +55,10 @@
       ]
     },
     "commands": [
+      {
+        "command": "skillshub.newSkill",
+        "title": "New Skill"
+      },
       {
         "command": "skillshub.refreshExplorer",
         "title": "Refresh Skills"

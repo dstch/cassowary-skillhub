@@ -22,7 +22,7 @@ export function registerCommands(
   marketplaceView = new MarketplaceView(marketplaceService, cacheManager);
   
   commands.push(
-    vscode.commands.registerCommand('skillshub.createSkill', async () => {
+    vscode.commands.registerCommand('skillshub.newSkill', async () => {
       const editor = vscode.window.activeTextEditor;
       const context = editor ? {
         currentFile: editor.document.uri.fsPath,

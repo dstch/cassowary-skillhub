@@ -1,0 +1,12 @@
+{
+  "name": "skillhub-opencode",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "build/plugin.js",
+  "dependencies": {},
+  "devDependencies": {
+    "@opencode-ai/plugin": "^0.1.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.3.0"
+  }
+}

@@ -30,6 +30,11 @@ export class SkillCreationPanel {
     this.agent.on('statusChange', (status: string) => {
       this.postMessage({ type: 'status', status });
     });
+
+    this.agent.on('streamEvent', (event: { type: string; content?: string; done?: boolean }) => {
+      const { type: eventType, ...rest } = event;
+      this.postMessage({ type: 'streamEvent', ...rest, originalType: eventType });
+    });
   }
 
   show(context?: { currentFile?: string; projectPath?: string }): void {

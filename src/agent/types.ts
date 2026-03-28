@@ -32,6 +32,14 @@ export interface AgentResponse {
   status: CreationStatus;
 }
 
+export type StreamEventType = 'step-start' | 'reasoning' | 'text' | 'step-finish' | 'error';
+
+export interface StreamEvent {
+  type: StreamEventType;
+  content?: string;
+  done?: boolean;
+}
+
 export interface Template {
   id: string;
   name: string;

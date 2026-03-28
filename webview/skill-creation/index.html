@@ -62,6 +62,8 @@
     const contextPanel = document.getElementById('contextPanel');
 
     let currentStatus = 'idle';
+    let streamMessageDiv = null;
+    let thinkingIndicator = null;
 
     function addMessage(role, content) {
       const msgDiv = document.createElement('div');
@@ -69,16 +71,62 @@
       msgDiv.innerHTML = '<div class="message-content">' + escapeHtml(content) + '</div>';
       conversation.appendChild(msgDiv);
       conversation.scrollTop = conversation.scrollHeight;
+      return msgDiv;
+    }
+
+    function startStreamMessage(role) {
+      streamMessageDiv = document.createElement('div');
+      streamMessageDiv.className = 'message ' + role;
+      streamMessageDiv.innerHTML = '<div class="message-content streaming"></div>';
+      conversation.appendChild(streamMessageDiv);
+      return streamMessageDiv.querySelector('.message-content');
+    }
+
+    function appendStreamContent(content) {
+      if (streamMessageDiv) {
+        const msgContent = streamMessageDiv.querySelector('.message-content');
+        msgContent.innerHTML += escapeHtml(content);
+        conversation.scrollTop = conversation.scrollHeight;
+      }
+    }
+
+    function finishStreamMessage() {
+      if (streamMessageDiv) {
+        streamMessageDiv.classList.remove('streaming');
+        if (thinkingIndicator) {
+          thinkingIndicator.remove();
+          thinkingIndicator = null;
+        }
+        streamMessageDiv = null;
+      }
+    }
+
+    function showThinkingIndicator() {
+      if (!thinkingIndicator) {
+        thinkingIndicator = document.createElement('div');
+        thinkingIndicator.className = 'thinking-indicator';
+        thinkingIndicator.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+        conversation.appendChild(thinkingIndicator);
+      }
+    }
+
+    function removeThinkingIndicator() {
+      if (thinkingIndicator) {
+        thinkingIndicator.remove();
+        thinkingIndicator = null;
+      }
     }
 
     function setStatus(status) {
       currentStatus = status;
-      if (status === 'thinking') {
+      if (status === 'thinking' || status === 'generating') {
         sendBtn.disabled = true;
         sendBtn.textContent = '...';
+        showThinkingIndicator();
       } else {
         sendBtn.disabled = false;
         sendBtn.textContent = 'Send';
+        removeThinkingIndicator();
       }
     }
 
@@ -115,6 +163,21 @@
         showPreview(data.preview);
       } else if (data.type === 'fallback') {
         showFallback(data.templates);
+      } else if (data.type === 'streamEvent') {
+        const eventType = data.originalType;
+        if (data.content) {
+          if (!streamMessageDiv && eventType !== 'step-finish') {
+            startStreamMessage('agent');
+          }
+          if (eventType === 'reasoning') {
+            appendStreamContent('[思考中] ' + data.content + '\n');
+          } else if (eventType === 'text' && data.content) {
+            appendStreamContent(data.content);
+          }
+        }
+        if (data.done || eventType === 'step-finish') {
+          finishStreamMessage();
+        }
       }
     });
 

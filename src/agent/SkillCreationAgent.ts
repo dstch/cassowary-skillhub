@@ -4,7 +4,8 @@ import {
   CreationStatus,
   SkillPreview,
   CreationContext,
-  AgentResponse
+  AgentResponse,
+  StreamEvent
 } from './types';
 import { AgentAPIService } from '../services/AgentAPIService';
 import { TemplateEngine } from '../services/TemplateEngine';
@@ -17,6 +18,7 @@ export class SkillCreationAgent extends EventEmitter {
   private context: CreationContext | null = null;
   private agentAPIService: AgentAPIService;
   private templateEngine: TemplateEngine;
+  private abortController: AbortController | null = null;
 
   constructor() {
     super();
@@ -51,19 +53,34 @@ export class SkillCreationAgent extends EventEmitter {
       this.status = 'generating';
       this.emit('statusChange', this.status);
 
-      const response = await this.agentAPIService.generateSkill(content, {
+      this.abortController = new AbortController();
+      let fullText = '';
+      
+      for await (const event of this.agentAPIService.streamSkill(content, {
         context: this.context,
         conversation: this.conversation
-      });
+      })) {
+        if (this.abortController?.signal.aborted) {
+          break;
+        }
+        this.emit('streamEvent', event);
+        
+        if (event.type === 'text' && event.content) {
+          fullText += event.content;
+        }
+        
+        if (event.type === 'step-finish' && event.done) {
+          this.preview = this.parseSkillFromText(fullText);
+          if (this.preview) {
+            this.conversation.push({
+              role: 'agent',
+              content: `I've created a skill for: ${this.preview.name}`,
+              timestamp: new Date().toISOString()
+            });
+          }
+        }
+      }
 
-      this.preview = response;
-      this.conversation.push({
-        role: 'agent',
-        content: `I've created a skill for: ${response.name}`,
-        timestamp: new Date().toISOString()
-      });
-
-      this.status = 'generating';
       return {
         message: this.conversation[this.conversation.length - 1].content,
         preview: this.preview,
@@ -72,7 +89,30 @@ export class SkillCreationAgent extends EventEmitter {
     } catch (error) {
       Logger.error('Agent generation failed', error as Error);
       return this.handleAgentUnavailable();
+    } finally {
+      this.abortController = null;
     }
+  }
+
+  private parseSkillFromText(text: string): SkillPreview | null {
+    try {
+      const jsonMatch = text.match(/\{[\s\S]*"name"[\s\S]*"files"[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (parsed.name && parsed.description && Array.isArray(parsed.files)) {
+          return {
+            name: parsed.name,
+            description: parsed.description,
+            files: parsed.files.filter((f: { path?: string; content?: string }) => 
+              typeof f.path === 'string' && typeof f.content === 'string'
+            )
+          };
+        }
+      }
+    } catch (e) {
+      Logger.error('Failed to parse JSON from response', e as Error);
+    }
+    return null;
   }
 
   private handleAgentUnavailable(): AgentResponse {

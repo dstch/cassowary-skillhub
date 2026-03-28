@@ -73,6 +73,42 @@ body {
   border-bottom-left-radius: 4px;
 }
 
+.message.streaming .message-content {
+  border-left: 3px solid #4f46e5;
+}
+
+.thinking-indicator {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.thinking-indicator .dot {
+  width: 8px;
+  height: 8px;
+  background: #9ca3af;
+  border-radius: 50%;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.thinking-indicator .dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinking-indicator .dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
 .preview-panel, .fallback-panel {
   padding: 12px 16px;
   background: white;

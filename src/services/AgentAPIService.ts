@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
-import { SkillPreview, SkillFile } from '../agent/types';
+import { EventEmitter } from 'events';
+import { SkillPreview, SkillFile, StreamEvent } from '../agent/types';
 import { Logger } from './logger';
 
 interface OpenCodeMessageResponse {
@@ -12,16 +13,19 @@ interface OpenCodeMessageResponse {
   parts: Array<{
     type: string;
     text?: string;
+    reasoning?: string;
+    metadata?: Record<string, unknown>;
   }>;
 }
 
-export class AgentAPIService {
+export class AgentAPIService extends EventEmitter {
   private client: AxiosInstance;
   private baseUrl: string;
   private sessionId: string | null = null;
   private password: string | undefined;
 
   constructor(baseUrl: string = 'http://localhost:8080') {
+    super();
     this.baseUrl = baseUrl;
     this.password = process.env.OPENCODE_SERVER_PASSWORD;
     this.client = axios.create({
@@ -67,6 +71,53 @@ export class AgentAPIService {
       { headers: this.getAuthHeaders() }
     );
     return response.data;
+  }
+
+  async *streamSkill(prompt: string, _context: object): AsyncGenerator<StreamEvent, void, unknown> {
+    const sessionId = await this.createSession('Skill Creation');
+    this.sessionId = sessionId;
+
+    const skillPrompt = `Create a new skill based on the following request. After creating the skill files, respond with a JSON structure in this exact format (no other text):
+{
+  "name": "Skill Name",
+  "description": "What the skill does",
+  "files": [
+    {"path": "relative/path/file.ext", "content": "file content here"}
+  ]
+}
+
+User request: ${prompt}`;
+
+    yield { type: 'step-start', content: 'Connecting to agent...' };
+
+    const response = await this.sendMessage(sessionId, skillPrompt);
+
+    for (const part of response.parts) {
+      switch (part.type) {
+        case 'reasoning':
+          if (part.reasoning) {
+            yield { type: 'reasoning', content: part.reasoning };
+          }
+          break;
+        case 'text':
+          if (part.text) {
+            yield { type: 'text', content: part.text };
+          }
+          break;
+        case 'step-start':
+          yield { type: 'step-start', content: 'Agent is thinking...' };
+          break;
+        case 'step-finish':
+          yield { type: 'step-finish', done: true };
+          break;
+      }
+    }
+
+    const textPart = response.parts.find(p => p.type === 'text');
+    const responseText = textPart?.text || '';
+    const preview = this.parseSkillPreview(responseText);
+    
+    yield { type: 'text', content: `\n\nI've created a skill for: ${preview.name}` };
   }
 
   async generateSkill(prompt: string, _context: object): Promise<SkillPreview> {

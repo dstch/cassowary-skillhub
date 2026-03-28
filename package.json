@@ -3,7 +3,7 @@
   "displayName": "Cassowary SkillHub",
   "description": "Skill management and marketplace for OpenCode",
   "icon": "media/cassowary-icon.png",
-  "version": "0.0.26",
+  "version": "0.0.29",
   "publisher": "skillhub",
   "repository": {
     "type": "git",

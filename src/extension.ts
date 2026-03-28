@@ -38,7 +38,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const skills = await skillManager.list();
   const provider = new SkillExplorerProvider(skills);
-  vscode.window.registerTreeDataProvider('cassowary-skillhub.explorer', provider);
+  vscode.window.registerTreeDataProvider('skillExplorer', provider);
 
   vscode.commands.registerCommand('cassowary-skillhub.refreshExplorer', async () => {
     const updatedSkills = await skillManager.list();
